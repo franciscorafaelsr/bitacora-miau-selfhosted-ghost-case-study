@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+    
+    <!-- Component Gradients -->
+    <linearGradient id="traefikGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+    
+    <linearGradient id="nginxGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    
+    <linearGradient id="ghostGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f472b6" />
+      <stop offset="100%" stop-color="#db2777" />
+    </linearGradient>
+
+    <!-- Shadow Effect -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#000" flood-opacity="0.5" />
+    </filter>
+    
+    <!-- Arrow Marker -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8" />
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="url(#bgGrad)" rx="16" />
+  
+  <!-- Grid Lines -->
+  <g stroke="#334155" stroke-width="0.5" opacity="0.3">
+    <path d="M0 50 H800 M0 100 H800 M0 150 H800 M0 200 H800 M0 250 H800 M0 300 H800 M0 350 H800 M0 400 H800 M0 450 H800" />
+    <path d="M100 0 V500 M200 0 V500 M300 0 V500 M400 0 V500 M500 0 V500 M600 0 V500 M700 0 V500" />
+  </g>
+
+  <!-- Title -->
+  <text x="40" y="45" fill="#f8fafc" font-family="sans-serif" font-size="22" font-weight="bold" letter-spacing="0.5">Bitácora Miau - Flujo de Peticiones y Caché</text>
+  <text x="40" y="70" fill="#94a3b8" font-family="sans-serif" font-size="13">Lógica de evaluación en la capa intermedia de aceleración</text>
+
+  <!-- CLIENT -->
+  <g filter="url(#shadow)">
+    <rect x="50" y="215" width="120" height="70" rx="8" fill="#475569" stroke="#64748b" stroke-width="1.5" />
+    <text x="110" y="248" fill="#ffffff" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">Cliente</text>
+    <text x="110" y="266" fill="#cbd5e1" font-family="sans-serif" font-size="10" text-anchor="middle">Browser / Lector</text>
+  </g>
+
+  <!-- TRAEFIK -->
+  <g filter="url(#shadow)">
+    <rect x="220" y="215" width="130" height="70" rx="8" fill="url(#traefikGrad)" />
+    <text x="285" y="248" fill="#ffffff" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">Traefik</text>
+    <text x="285" y="266" fill="#e0f2fe" font-family="sans-serif" font-size="10" text-anchor="middle">SSL &amp; Router</text>
+  </g>
+
+  <!-- NGINX CACHE DECISION -->
+  <g filter="url(#shadow)">
+    <polygon points="400,250 480,200 560,250 480,300" fill="url(#nginxGrad)" />
+    <text x="480" y="247" fill="#ffffff" font-family="sans-serif" font-size="11" font-weight="bold" text-anchor="middle">¿Ruta en</text>
+    <text x="480" y="261" fill="#ffffff" font-family="sans-serif" font-size="11" font-weight="bold" text-anchor="middle">Caché?</text>
+  </g>
+
+  <!-- GHOST CMS -->
+  <g filter="url(#shadow)">
+    <rect x="630" y="215" width="120" height="70" rx="8" fill="url(#ghostGrad)" />
+    <text x="690" y="248" fill="#ffffff" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">Ghost CMS</text>
+    <text x="690" y="266" fill="#fce7f3" font-family="sans-serif" font-size="10" text-anchor="middle">Generación Dinámica</text>
+  </g>
+
+  <!-- CACHE STORAGE -->
+  <g filter="url(#shadow)">
+    <rect x="420" y="380" width="120" height="50" rx="8" fill="#1e293b" stroke="#059669" stroke-width="2" />
+    <text x="480" y="405" fill="#34d399" font-family="sans-serif" font-size="12" font-weight="bold" text-anchor="middle">Cache Storage</text>
+    <text x="480" y="420" fill="#a7f3d0" font-family="sans-serif" font-size="9" text-anchor="middle">Nginx /var/cache/nginx</text>
+  </g>
+
+  <!-- CONNECTORS AND LABELS -->
+  <!-- Client to Traefik -->
+  <path d="M 170 250 L 212 250" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)" fill="none" />
+  <text x="191" y="242" fill="#cbd5e1" font-family="sans-serif" font-size="9" text-anchor="middle">HTTPS</text>
+
+  <!-- Traefik to Nginx -->
+  <path d="M 350 250 L 392 250" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)" fill="none" />
+  
+  <!-- Nginx: IF BYPASS / DYNAMIC -->
+  <!-- Arrow going over Nginx to Ghost directly -->
+  <path d="M 285 215 C 285 130 690 130 690 207" stroke="#fb7185" stroke-width="2" stroke-dasharray="4" marker-end="url(#arrow)" fill="none" />
+  <text x="480" y="125" fill="#f43f5e" font-family="sans-serif" font-size="10" text-anchor="middle" font-weight="bold">BYPASS (Cookie / ghost-admin / /ghost/ / POST)</text>
+
+  <!-- Nginx: IF MISS -->
+  <!-- Decision -> Ghost -->
+  <path d="M 560 250 L 622 250" stroke="#f472b6" stroke-width="1.5" marker-end="url(#arrow)" fill="none" />
+  <text x="591" y="242" fill="#cbd5e1" font-family="sans-serif" font-size="9" text-anchor="middle">NO (Miss)</text>
+
+  <!-- Ghost returns response -> Nginx -> Stores in Cache -->
+  <path d="M 690 285 C 690 340 500 340 482 372" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrow)" fill="none" />
+  <text x="610" y="342" fill="#10b981" font-family="sans-serif" font-size="9" text-anchor="middle">Save Response</text>
+
+  <!-- Nginx: IF HIT -->
+  <!-- Decision -> Cache Storage -->
+  <path d="M 480 300 L 480 372" stroke="#34d399" stroke-width="2" marker-end="url(#arrow)" fill="none" />
+  <text x="490" y="338" fill="#10b981" font-family="sans-serif" font-size="9" text-anchor="start">SI (Hit)</text>
+
+  <!-- Cache Storage -> Returns to Reader -->
+  <path d="M 420 405 C 285 405 285 300 285 292" stroke="#38bdf8" stroke-width="1.5" marker-end="url(#arrow)" fill="none" />
+  <text x="275" y="360" fill="#0284c7" font-family="sans-serif" font-size="9" text-anchor="end">Fast Return (HIT)</text>
+
+</svg>

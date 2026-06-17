@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 550" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+    
+    <!-- Component Gradients -->
+    <linearGradient id="traefikGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+    
+    <linearGradient id="nginxGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    
+    <linearGradient id="ghostGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f472b6" />
+      <stop offset="100%" stop-color="#db2777" />
+    </linearGradient>
+    
+    <linearGradient id="dbGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+    
+    <linearGradient id="sidecarGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#a78bfa" />
+      <stop offset="100%" stop-color="#7c3aed" />
+    </linearGradient>
+    
+    <!-- Shadow Effect -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#000" flood-opacity="0.5" />
+    </filter>
+    
+    <!-- Arrow Marker -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8" />
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#34d399" />
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="url(#bgGrad)" rx="16" />
+  
+  <!-- Grid Lines (Subtle) -->
+  <g stroke="#334155" stroke-width="0.5" opacity="0.3">
+    <path d="M0 50 H800 M0 100 H800 M0 150 H800 M0 200 H800 M0 250 H800 M0 300 H800 M0 350 H800 M0 400 H800 M0 450 H800 M0 500 H800" />
+    <path d="M100 0 V550 M200 0 V550 M300 0 V550 M400 0 V550 M500 0 V550 M600 0 V550 M700 0 V550" />
+  </g>
+
+  <!-- Title -->
+  <text x="40" y="45" fill="#f8fafc" font-family="sans-serif" font-size="22" font-weight="bold" letter-spacing="0.5">Bitácora Miau - Arquitectura de Stack</text>
+  <text x="40" y="70" fill="#94a3b8" font-family="sans-serif" font-size="13">Estructura general de contenedores y flujo de solicitudes</text>
+
+  <!-- INTERNET -->
+  <g filter="url(#shadow)">
+    <rect x="300" y="105" width="200" height="40" rx="20" fill="#1e293b" stroke="#475569" stroke-width="2" />
+    <text x="400" y="130" fill="#f1f5f9" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">INTERNET (Client Request)</text>
+  </g>
+
+  <!-- GATEWAY (Traefik) -->
+  <g filter="url(#shadow)">
+    <rect x="300" y="185" width="200" height="60" rx="8" fill="url(#traefikGrad)" />
+    <text x="400" y="215" fill="#ffffff" font-family="sans-serif" font-size="15" font-weight="bold" text-anchor="middle">Traefik Gateway</text>
+    <text x="400" y="233" fill="#e0f2fe" font-family="sans-serif" font-size="11" text-anchor="middle">TLS Termination (Port 80/443)</text>
+  </g>
+
+  <!-- NGINX ACCELERATOR -->
+  <g filter="url(#shadow)">
+    <rect x="300" y="285" width="200" height="60" rx="8" fill="url(#nginxGrad)" />
+    <text x="400" y="315" fill="#ffffff" font-family="sans-serif" font-size="15" font-weight="bold" text-anchor="middle">Nginx Accelerator</text>
+    <text x="400" y="333" fill="#d1fae5" font-family="sans-serif" font-size="11" text-anchor="middle">Caching Layer (proxy_cache)</text>
+  </g>
+
+  <!-- GHOST CMS -->
+  <g filter="url(#shadow)">
+    <rect x="300" y="385" width="200" height="60" rx="8" fill="url(#ghostGrad)" />
+    <text x="400" y="415" fill="#ffffff" font-family="sans-serif" font-size="15" font-weight="bold" text-anchor="middle">Ghost CMS</text>
+    <text x="400" y="433" fill="#fce7f3" font-family="sans-serif" font-size="11" text-anchor="middle">Core Engine (Node.js)</text>
+  </g>
+
+  <!-- MARIADB -->
+  <g filter="url(#shadow)">
+    <rect x="300" y="485" width="200" height="45" rx="8" fill="url(#dbGrad)" />
+    <text x="400" y="513" fill="#ffffff" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">MariaDB Database</text>
+  </g>
+
+  <!-- SIDECARS (Right side) -->
+  <!-- imgproxy -->
+  <g filter="url(#shadow)">
+    <rect x="580" y="295" width="160" height="50" rx="8" fill="url(#sidecarGrad)" />
+    <text x="660" y="320" fill="#ffffff" font-family="sans-serif" font-size="13" font-weight="bold" text-anchor="middle">imgproxy</text>
+    <text x="660" y="337" fill="#f5f3ff" font-family="sans-serif" font-size="10" text-anchor="middle">Image Optimization</text>
+  </g>
+
+  <!-- mailgun-proxy -->
+  <g filter="url(#shadow)">
+    <rect x="580" y="390" width="160" height="50" rx="8" fill="url(#sidecarGrad)" />
+    <text x="660" y="415" fill="#ffffff" font-family="sans-serif" font-size="13" font-weight="bold" text-anchor="middle">mailgun-proxy</text>
+    <text x="660" y="432" fill="#f5f3ff" font-family="sans-serif" font-size="10" text-anchor="middle">HTTP to SMTP Gateway</text>
+  </g>
+
+  <!-- tools-api -->
+  <g filter="url(#shadow)">
+    <rect x="60" y="390" width="160" height="50" rx="8" fill="url(#sidecarGrad)" />
+    <text x="140" y="415" fill="#ffffff" font-family="sans-serif" font-size="13" font-weight="bold" text-anchor="middle">tools-api</text>
+    <text x="140" y="432" fill="#f5f3ff" font-family="sans-serif" font-size="10" text-anchor="middle">Custom Members Services</text>
+  </g>
+
+  <!-- CONNECTING ARROWS -->
+  <!-- Internet -> Traefik -->
+  <path d="M 400 145 L 400 177" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)" fill="none" />
+  
+  <!-- Traefik -> Nginx -->
+  <path d="M 400 245 L 400 277" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)" fill="none" />
+  
+  <!-- Nginx -> Ghost (Dynamic requests / Bypass) -->
+  <path d="M 385 345 L 385 377" stroke="#fb7185" stroke-width="2" marker-end="url(#arrow)" fill="none" />
+  <text x="350" y="365" fill="#f43f5e" font-family="sans-serif" font-size="9" text-anchor="end">Bypass</text>
+  
+  <!-- Nginx -> Ghost (Cached hit or fill cache) -->
+  <path d="M 415 345 L 415 377" stroke="#34d399" stroke-width="2" marker-end="url(#arrow-green)" fill="none" />
+  <text x="440" y="365" fill="#10b981" font-family="sans-serif" font-size="9" text-anchor="start">Cache Miss/Fill</text>
+
+  <!-- Ghost -> Database -->
+  <path d="M 400 445 L 400 477" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)" fill="none" />
+
+  <!-- Ghost -> imgproxy -->
+  <path d="M 500 405 C 540 405 550 320 572 320" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrow)" fill="none" />
+  <text x="540" y="355" fill="#8b5cf6" font-family="sans-serif" font-size="9" text-anchor="middle" transform="rotate(-35, 540, 355)">Image Req</text>
+
+  <!-- Ghost -> mailgun-proxy -->
+  <path d="M 500 415 L 572 415" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrow)" fill="none" />
+  <text x="536" y="410" fill="#8b5cf6" font-family="sans-serif" font-size="9" text-anchor="middle">Send Newsletters</text>
+
+  <!-- tools-api -> Ghost -->
+  <path d="M 220 415 L 292 415" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrow)" fill="none" />
+
+  <!-- Legend / Network Labels -->
+  <rect x="50" y="495" width="200" height="30" rx="4" fill="#1e293b" stroke="#334155" stroke-width="1" />
+  <circle cx="65" cy="510" r="5" fill="#34d399" />
+  <text x="78" y="514" fill="#94a3b8" font-family="sans-serif" font-size="10">Internal Docker Network (miau_internal)</text>
+
+</svg>

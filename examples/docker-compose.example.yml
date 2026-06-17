@@ -1,0 +1,201 @@
+# ==============================================================================
+# Docker Compose Stack - Bitácora Miau (Template)
+# ==============================================================================
+# Este archivo sirve como plantilla para el despliegue del stack.
+# Reemplaza todas las variables de entorno indicadas entre `${}` con tus valores.
+# ==============================================================================
+
+services:
+  # ----------------------------------------------------------------------------
+  # Base de Datos (MariaDB)
+  # ----------------------------------------------------------------------------
+  mysql_ghost:
+    image: mariadb:10.6
+    container_name: miau_mysql
+    restart: unless-stopped
+    mem_limit: 256m
+    mem_reservation: 128m
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=ghost
+      - MYSQL_USER=ghost
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - TZ=${SYSTEM_TIMEZONE:-UTC}
+      # # --- Optimización KSM (Opcional - Requiere soporte en el host) ---
+      # - LD_PRELOAD=/ksm/libksm_enabler.so
+      # - KSM_ENABLER_RESCAN_SECS=${KSM_ENABLER_RESCAN_SECS:-30}
+      # - KSM_ENABLER_MIN_REGION_BYTES=${KSM_ENABLER_MIN_REGION_BYTES:-65536}
+      # - KSM_ENABLER_VERBOSE=${KSM_ENABLER_VERBOSE:-0}
+    volumes:
+      - miau_mysql_data:/var/lib/mysql
+      # # --- Librería KSM (MariaDB usa glibc en contenedores Debian) ---
+      # - /usr/local/lib/ksm-recovery/libksm_enabler_glibc.so:/ksm/libksm_enabler.so:ro
+    networks:
+      - miau_internal
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "ghost", "-p${MYSQL_PASSWORD}"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ----------------------------------------------------------------------------
+  # Ghost CMS (Core Application)
+  # ----------------------------------------------------------------------------
+  ghost:
+    image: ${GHOST_IMAGE:-ghost:6.41.0-alpine}
+    container_name: miau_ghost
+    restart: unless-stopped
+    mem_limit: 384m
+    mem_reservation: 192m
+    depends_on:
+      mysql_ghost:
+        condition: service_healthy
+    environment:
+      # Database connection
+      - database__client=mysql
+      - database__connection__host=mysql_ghost
+      - database__connection__user=ghost
+      - database__connection__password=${MYSQL_PASSWORD}
+      - database__connection__database=ghost
+      
+      # Core settings
+      - url=https://${DOMAIN}
+      - server__host=0.0.0.0
+      - server__port=2368
+      - NODE_ENV=production
+      
+      # Privacy / Disable unnecessary pings
+      - privacy__useRpcPing=false
+      - privacy__useUpdateCheck=false
+      
+      # # --- Optimización KSM (Opcional - Requiere soporte en el host) ---
+      # - LD_PRELOAD=/ksm/libksm_enabler.so
+      # - KSM_ENABLER_RESCAN_SECS=${KSM_ENABLER_RESCAN_SECS:-30}
+      # - KSM_ENABLER_MIN_REGION_BYTES=${KSM_ENABLER_MIN_REGION_BYTES:-65536}
+      # - KSM_ENABLER_VERBOSE=${KSM_ENABLER_VERBOSE:-0}
+      
+      # Transactional Email (SMTP direct)
+      - mail__transport=SMTP
+      - mail__options__host=${SMTP_HOST}
+      - mail__options__port=${SMTP_PORT:-587}
+      - mail__options__secure=${SMTP_SECURE:-false}
+      - mail__options__auth__user=${SMTP_USER}
+      - mail__options__auth__pass=${SMTP_PASSWORD}
+      - mail__from=${MAIL_FROM}
+    volumes:
+      - miau_ghost_content:/var/lib/ghost/content
+      # # --- Librería KSM (Ghost Alpine usa musl) ---
+      # - /usr/local/lib/ksm-recovery/libksm_enabler_musl.so:/ksm/libksm_enabler.so:ro
+    networks:
+      - miau_internal
+
+  # ----------------------------------------------------------------------------
+  # Nginx Accelerator (Caching Proxy)
+  # ----------------------------------------------------------------------------
+  nginx_cache:
+    image: nginx:alpine
+    container_name: miau_nginx_cache
+    restart: unless-stopped
+    mem_limit: 64m
+    depends_on:
+      - ghost
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - miau_nginx_cache_dir:/var/cache/nginx
+    networks:
+      - miau_internal
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.miau-blog.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.miau-blog.entrypoints=websecure"
+      - "traefik.http.routers.miau-blog.tls=true"
+      - "traefik.http.routers.miau-blog.tls.certresolver=letsencrypt"
+      - "traefik.http.services.miau-blog.loadbalancer.server.port=80"
+
+  # ----------------------------------------------------------------------------
+  # imgproxy (Image Optimizer Sidecar)
+  # ----------------------------------------------------------------------------
+  imgproxy:
+    image: darthsim/imgproxy:latest
+    container_name: miau_imgproxy
+    restart: unless-stopped
+    mem_limit: 128m
+    environment:
+      - IMGPROXY_KEY=${IMGPROXY_KEY}
+      - IMGPROXY_SALT=${IMGPROXY_SALT}
+      - IMGPROXY_MAX_SRC_RESOLUTION=20
+      - IMGPROXY_TTL=2592000 # 30 days
+    networks:
+      - miau_internal
+
+  # ----------------------------------------------------------------------------
+  # mailgun-proxy (SMTP Translation Gateway)
+  # ----------------------------------------------------------------------------
+  mailgun_proxy:
+    image: node:18-alpine
+    container_name: miau_mailgun_proxy
+    restart: unless-stopped
+    mem_limit: 64m
+    working_dir: /app
+    environment:
+      - PORT=8020
+      - BREVO_SMTP_USER=${NEWSLETTER_SMTP_USER}
+      - BREVO_SMTP_PASSWORD=${NEWSLETTER_SMTP_PASSWORD}
+      - CHUNK_SIZE=1000
+      - SENTRY_DSN_MAILGUN_PROXY=${SENTRY_DSN_MAILGUN_PROXY:-}
+      - SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE:-0}
+    volumes:
+      # Asume que guardas el código del proxy en esta ruta en producción
+      - ./mailgun-proxy:/app
+    # NOTA: La instalación dinámica ('npm install') se incluye por simplicidad en esta plantilla. 
+    # En producción se recomienda compilar una imagen Docker propia (con un Dockerfile) por seguridad y rapidez.
+    command: sh -c "npm install && node server.js"
+    networks:
+      - miau_internal
+
+  # ----------------------------------------------------------------------------
+  # tools-api (Custom Membership Services API)
+  # ----------------------------------------------------------------------------
+  tools_api:
+    image: node:18-alpine
+    container_name: miau_tools_api
+    restart: unless-stopped
+    mem_limit: 128m
+    working_dir: /app
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=mysql_ghost
+      - DB_USER=ghost
+      - DB_PASSWORD=${MYSQL_PASSWORD}
+      - DB_NAME=ghost
+      - PORT=3000
+    volumes:
+      - ./tools-api:/app
+    # NOTA: Se recomienda compilar una imagen Docker propia para producción.
+    command: sh -c "npm install && node index.js"
+    networks:
+      - miau_internal
+
+# ------------------------------------------------------------------------------
+# Volúmenes Persistentes
+# ------------------------------------------------------------------------------
+volumes:
+  miau_mysql_data:
+    name: miau_mysql_data
+  miau_ghost_content:
+    name: miau_ghost_content
+  miau_nginx_cache_dir:
+    name: miau_nginx_cache_dir
+
+# ------------------------------------------------------------------------------
+# Redes de Comunicación
+# ------------------------------------------------------------------------------
+networks:
+  miau_internal:
+    name: miau_internal
+    driver: bridge
+  proxy:
+    external: true
+    name: proxy # Red de Traefik para entrada de tráfico
