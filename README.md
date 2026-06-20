@@ -1,4 +1,4 @@
-# Bitácora Miau Platform
+# Plataforma Bitácora Miau
 
 Documentación técnica del stack autohospedado usado para construir y operar **Bitácora Miau**, un proyecto editorial sobre salud felina desarrollado con Ghost CMS, Docker, MariaDB, Nginx, imgproxy, correo transaccional, newsletters y herramientas propias para usuarios.
 
